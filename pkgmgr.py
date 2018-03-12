@@ -119,6 +119,9 @@ def execute(input):
         ## if so do not delete
         print(input)
         item = components[1]
+        if item not in installed_items:
+            print("   {} is not installed".format(item))
+            return
         if dependecy_graph.isThereAnyIncomingEdgeTo(item_to_index_map[item]):
             print('   {} is still needed.'.format(item))
         else:
@@ -132,6 +135,8 @@ def execute(input):
 
     elif components[0] == 'LIST':
         print(input)
+        for item in installed_items:
+            print('   {}'.format(item))
     elif components[0] == 'END':
         return
     else:
