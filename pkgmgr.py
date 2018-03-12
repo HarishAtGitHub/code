@@ -60,11 +60,11 @@ def execute(input):
         dependencies = components[2:]
         for dependency in dependencies:
             index_value(dependency)
-            reverseedge = Edge(item, dependency)
+            reverseedge = Edge(dependency, item)
             if reverseedge in edges:
                 print("   {} depends on {}. Ignoring command.".format(dependency, item))
             else:
-                edges.add(Edge(dependency, item))
+                edges.add(Edge(item, dependency))
 
     elif components[0] == 'INSTALL':
         # laxy graph forming
