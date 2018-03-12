@@ -33,6 +33,9 @@ class Graph:
                 return True
         return False
 
+    def getChildren(self, node):
+        return self.adjList[node]
+
 items = set()
 is_dependency_graph_ready = False
 edges = set()
@@ -119,7 +122,12 @@ def execute(input):
         if dependecy_graph.isThereAnyIncomingEdgeTo(item_to_index_map[item]):
             print('   {} is still needed.'.format(item))
         else:
-            installed_items.remove(item)
+            #order = dependecy_graph.dfs(item_to_index_map[item])
+            children = dependecy_graph.getChildren(item_to_index_map[item])
+            for child in children:
+                if index_to_item_map[child] in installed_items:
+                    installed_items.remove(index_to_item_map[child])
+                    print('   Removing {}'.format(index_to_item_map[child]))
             print('   Removing {}'.format(item))
 
     elif components[0] == 'LIST':
