@@ -102,6 +102,8 @@ def execute(input):
         if not dependecy_graph:
             form_dependecy_graph(edges, len(items))
         item = components[1]
+        if item in installed_items:
+            print('   {} is already installed.'.format(item))
         if item in items:
             order = dependecy_graph.dfs(item_to_index_map[item])
             if order:
@@ -112,6 +114,7 @@ def execute(input):
 
         else:
             print("   Installing {}".format(item) )
+            installed_items.add(item)
 
     elif components[0] == 'REMOVE':
         ## we should not blindly remove
@@ -138,6 +141,7 @@ def execute(input):
         for item in installed_items:
             print('   {}'.format(item))
     elif components[0] == 'END':
+        print(input)
         return
     else:
         print('invalid command')
