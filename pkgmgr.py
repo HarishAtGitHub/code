@@ -1,12 +1,32 @@
+from collections import deque
+
 class Graph:
     def __init__(self, V, item_to_index_map, index_to_item_map):
         self.V = V
         self.adjList = [[] for i in range(V)]
         self.item_to_index_map = item_to_index_map
         self.index_to_item_map = index_to_item_map
+        self.visited = [False] * V
+        self.result = deque([])
 
     def addEdge(self, src, dest):
         self.adjList[item_to_index_map[src]].append(item_to_index_map[dest])
+
+    def dfs(self, src):
+        self.visited = [False] * len(self.adjList)
+        self.result =  deque([])
+        self.dfsInternal(src)
+        return self.result
+
+    def dfsInternal(self, src):
+        self.visited[src] = True
+        children = self.adjList[src]
+        for child in children:
+            if not self.visited[child]:
+                self.dfsInternal(child)
+        self.result.append(src)
+
+
 
 items = set()
 is_dependency_graph_ready = False
@@ -15,6 +35,7 @@ dependecy_graph = None
 counter=-1
 item_to_index_map = {}
 index_to_item_map = {}
+installed_items = set()
 
 def form_dependecy_graph(edges, V):
     global  dependecy_graph
@@ -49,6 +70,7 @@ def index_value(value):
 def execute(input):
     components = input.split()
     global dependecy_graph
+    global item_to_index_map
     if components[0] == 'DEPEND':
         ### print
         print(input)
@@ -67,11 +89,23 @@ def execute(input):
                 edges.add(Edge(item, dependency))
 
     elif components[0] == 'INSTALL':
+        print(input)
         # laxy graph forming
         if not dependecy_graph:
             form_dependecy_graph(edges, len(items))
-            print("graph formed")
-        print(input)
+        item = components[1]
+        if item in items:
+            order = dependecy_graph.dfs(item_to_index_map[item])
+            if order:
+                for index in order:
+                    if index_to_item_map[index] not in installed_items:
+                        print("   Installing {}".format(index_to_item_map[index]))
+                        installed_items.add(index_to_item_map[index])
+
+        else:
+            print("   Installing {}".format(item) )
+
+
 
     elif components[0] == 'REMOVE':
         print(input)
@@ -89,7 +123,6 @@ execute('DEPEND DNS TCPIP NETCARD')
 execute('DEPEND  BROWSER       TCPIP HTML')
 
 execute('INSTALL NETCARD')
-'''
 execute('INSTALL TELNET')
 execute('INSTALL foo')
 execute('REMOVE NETCARD')
@@ -106,4 +139,4 @@ execute('REMOVE BROWSER')
 execute('REMOVE TCPIP')
 execute('LIST')
 execute('END')
-'''
+
