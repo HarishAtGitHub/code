@@ -1,5 +1,15 @@
 from collections import deque
 
+items = set()
+is_dependency_graph_ready = False
+edges = set()
+dependecy_graph = None
+counter=-1
+item_to_index_map = {}
+index_to_item_map = {}
+installed_items = set()
+item_to_dependencies_map = {}
+
 class Graph:
     def __init__(self, V, item_to_index_map, index_to_item_map):
         self.V = V
@@ -26,24 +36,19 @@ class Graph:
                 self.dfsInternal(child)
         self.result.append(src)
 
-    def isThereAnyIncomingEdgeTo(self, node):
+    def isThereAnyIncomingEdgeTo(self, node, exclude):
         for i in range(0, self.V):
-            children = self.adjList[i]
-            if node in set(children):
-                return True
+            if i != exclude:
+                children = self.adjList[i]
+                if node in set(children):
+                    if index_to_item_map[i] in installed_items:
+                        return True
         return False
 
     def getChildren(self, node):
         return self.adjList[node]
 
-items = set()
-is_dependency_graph_ready = False
-edges = set()
-dependecy_graph = None
-counter=-1
-item_to_index_map = {}
-index_to_item_map = {}
-installed_items = set()
+
 
 def form_dependecy_graph(edges, V):
     global  dependecy_graph
@@ -75,10 +80,12 @@ def index_value(value):
         items.add(value)
         item_to_index_map[value] = counter
 
+
 def execute(input):
     components = input.split()
     global dependecy_graph
     global item_to_index_map
+    global item_to_dependencies_map
     if components[0] == 'DEPEND':
         ### print
         print(input)
@@ -95,6 +102,10 @@ def execute(input):
                 print("   {} depends on {}. Ignoring command.".format(dependency, item))
             else:
                 edges.add(Edge(item, dependency))
+
+        if item not in item_to_dependencies_map:
+            item_to_dependencies_map[item] = dependencies
+
 
     elif components[0] == 'INSTALL':
         print(input)
@@ -125,16 +136,26 @@ def execute(input):
         if item not in installed_items:
             print("   {} is not installed".format(item))
             return
-        if dependecy_graph.isThereAnyIncomingEdgeTo(item_to_index_map[item]):
+        if dependecy_graph.isThereAnyIncomingEdgeTo(item_to_index_map[item], -1):
             print('   {} is still needed.'.format(item))
         else:
             #order = dependecy_graph.dfs(item_to_index_map[item])
-            children = dependecy_graph.getChildren(item_to_index_map[item])
+            '''children = dependecy_graph.getChildren(item_to_index_map[item])
             for child in children:
                 if index_to_item_map[child] in installed_items:
                     installed_items.remove(index_to_item_map[child])
-                    print('   Removing {}'.format(index_to_item_map[child]))
+                    print('   Removing {}'.format(index_to_item_map[child]))'''
+            if item in item_to_dependencies_map:
+                dependencies = item_to_dependencies_map[item]
+                for dependency in dependencies:
+                    if not dependecy_graph.isThereAnyIncomingEdgeTo(
+                            item_to_index_map[dependency], item_to_index_map[item]):
+                        if dependency in installed_items:
+                            installed_items.remove(dependency)
+                            print('   Removing {}'.format(dependency))
+
             print('   Removing {}'.format(item))
+            installed_items.remove(item)
 
     elif components[0] == 'LIST':
         print(input)
