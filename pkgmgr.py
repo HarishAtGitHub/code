@@ -26,7 +26,12 @@ class Graph:
                 self.dfsInternal(child)
         self.result.append(src)
 
-
+    def isThereAnyIncomingEdgeTo(self, node):
+        for i in range(0, self.V):
+            children = self.adjList[i]
+            if node in set(children):
+                return True
+        return False
 
 items = set()
 is_dependency_graph_ready = False
@@ -105,10 +110,18 @@ def execute(input):
         else:
             print("   Installing {}".format(item) )
 
-
-
     elif components[0] == 'REMOVE':
+        ## we should not blindly remove
+        ## rather we should see in graph is there is any incoming edge to it
+        ## if so do not delete
         print(input)
+        item = components[1]
+        if dependecy_graph.isThereAnyIncomingEdgeTo(item_to_index_map[item]):
+            print('   {} is still needed.'.format(item))
+        else:
+            installed_items.remove(item)
+            print('   Removing {}'.format(item))
+
     elif components[0] == 'LIST':
         print(input)
     elif components[0] == 'END':
